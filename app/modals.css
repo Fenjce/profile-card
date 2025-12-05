@@ -1,0 +1,215 @@
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+}
+
+/* Modal Container */
+.modal-container {
+  background: var(--card-bg-dark);
+  border-radius: 24px;
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transform: scale(0.9);
+  transition: transform 0.5s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-overlay.active .modal-container {
+  transform: scale(1);
+}
+
+.modal-container.light {
+  background: var(--card-bg-light);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary-dark);
+  text-align: center;
+  width: 100%;
+}
+
+.modal-title.light {
+  color: var(--text-primary-light);
+}
+
+/* Modal Close Button */
+.modal-close-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary-dark);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+  z-index: 10;
+}
+
+.modal-close-btn.light {
+  color: var(--text-primary-light);
+}
+
+.modal-close-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Modal Content */
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+  width: 100%;
+}
+
+/* Log Modal Specific */
+.log-item {
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.log-item:hover {
+  transform: translateY(-2px);
+}
+
+.log-item.dark {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.log-item.light {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.log-item.login.dark {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.log-item.login.light {
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.log-item-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.log-item-expanded {
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.log-item-expanded.dark {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.log-item-expanded.light {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.log-expand-icon {
+  font-size: 18px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.log-expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+/* Loading State */
+.loading-state {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-secondary-dark);
+}
+
+.loading-state.light {
+  color: var(--text-secondary-light);
+}
+
+/* Empty State */
+.empty-state {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-secondary-dark);
+}
+
+.empty-state.light {
+  color: var(--text-secondary-light);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-container {
+    padding: 30px 20px;
+    max-width: 100%;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions .btn {
+    width: 100%;
+  }
+}

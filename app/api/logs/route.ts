@@ -72,8 +72,16 @@ export async function POST(request: NextRequest) {
       // Cập nhật location nếu có
       if (locationData) {
         existingLog.city = locationData.city;
+        existingLog.region = locationData.region;
         existingLog.country = locationData.country;
-        existingLog.location = `${locationData.city}, ${locationData.country}`;
+        existingLog.timezone = locationData.timezone;
+        existingLog.isp = locationData.isp;
+
+        // Format location string
+        const locationParts = [locationData.city];
+        if (locationData.region) locationParts.push(locationData.region);
+        locationParts.push(locationData.country);
+        existingLog.location = locationParts.join(", ");
       }
 
       // Xóa log cũ và thêm vào đầu
@@ -81,6 +89,14 @@ export async function POST(request: NextRequest) {
       logs.unshift(existingLog);
     } else {
       // Tạo log entry mới (IP mới hoặc device type khác)
+      let location = undefined;
+      if (locationData) {
+        const locationParts = [locationData.city];
+        if (locationData.region) locationParts.push(locationData.region);
+        locationParts.push(locationData.country);
+        location = locationParts.join(", ");
+      }
+
       const logEntry: LogEntry = {
         timestamp: new Date().toISOString(),
         ip: cleanIp,
@@ -88,10 +104,11 @@ export async function POST(request: NextRequest) {
         type,
         username,
         city: locationData?.city,
+        region: locationData?.region,
         country: locationData?.country,
-        location: locationData
-          ? `${locationData.city}, ${locationData.country}`
-          : undefined,
+        timezone: locationData?.timezone,
+        isp: locationData?.isp,
+        location,
       };
 
       // Thêm log mới vào đầu

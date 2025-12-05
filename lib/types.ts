@@ -56,5 +56,8 @@ export interface LogEntry {
   type: "visit" | "login";
   username?: string;
   city?: string;
+  region?: string;
   country?: string;
+  timezone?: string;
+  isp?: string;
 }

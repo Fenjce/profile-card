@@ -1,7 +1,10 @@
 export interface LocationData {
   city: string;
+  region: string;
   country: string;
   countryCode: string;
+  timezone: string;
+  isp: string;
   query: string;
 }
 
@@ -52,7 +55,7 @@ export async function detectLocation(ip: string): Promise<LocationData | null> {
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     const response = await fetch(
-      `http://ip-api.com/json/${ip}?fields=status,message,country,countryCode,city,query`,
+      `http://ip-api.com/json/${ip}?fields=status,message,country,countryCode,region,regionName,city,timezone,isp,query`,
       {
         signal: controller.signal,
       }
@@ -72,8 +75,11 @@ export async function detectLocation(ip: string): Promise<LocationData | null> {
 
     const locationData: LocationData = {
       city: data.city || "Unknown",
+      region: data.regionName || data.region || "",
       country: data.country || "Unknown",
       countryCode: data.countryCode || "XX",
+      timezone: data.timezone || "",
+      isp: data.isp || "",
       query: data.query || ip,
     };
 

@@ -124,7 +124,7 @@ export default function LogModal({ onClose, theme, showToast }: LogModalProps) {
               Chưa có lượt truy cập nào
             </div>
           ) : (
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col" style={{ width: "100%" }}>
               {logs.map((log, index) => {
                 const deviceInfo = parseUserAgent(log.userAgent);
                 const isExpanded = expandedIndex === index;
@@ -146,8 +146,8 @@ export default function LogModal({ onClose, theme, showToast }: LogModalProps) {
                         <div
                           className={`text-primary ${theme}`}
                           style={{
-                            fontSize: "13px",
-                            fontWeight: "500",
+                            fontSize: "14px",
+                            fontWeight: "600",
                             marginBottom: "4px",
                           }}
                         >
@@ -155,19 +155,27 @@ export default function LogModal({ onClose, theme, showToast }: LogModalProps) {
                         </div>
                         <div
                           className={`text-secondary ${theme} text-truncate`}
-                          style={{ fontSize: "12px" }}
+                          style={{ fontSize: "13px" }}
                         >
                           {log.location || log.ip || "Unknown"}
                         </div>
                       </div>
 
-                      <div
-                        className={`log-expand-icon ${
+                      <svg
+                        className={`log-expand-icon ${theme} ${
                           isExpanded ? "expanded" : ""
                         }`}
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        ▼
-                      </div>
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
                     </div>
 
                     {/* Expanded View */}
@@ -192,43 +200,64 @@ export default function LogModal({ onClose, theme, showToast }: LogModalProps) {
                         </div>
 
                         {/* Details */}
-                        {log.ip && (
+                        <div className="flex flex-col gap-8">
+                          {log.ip && (
+                            <div
+                              className={`text-secondary ${theme}`}
+                              style={{ fontSize: "12px" }}
+                            >
+                              <strong>📍 IP:</strong> {log.ip}
+                            </div>
+                          )}
+
+                          {log.location && (
+                            <div
+                              className={`text-secondary ${theme}`}
+                              style={{ fontSize: "12px" }}
+                            >
+                              <strong>🌍 Vị trí:</strong> {log.location}
+                            </div>
+                          )}
+
+                          {log.timezone && (
+                            <div
+                              className={`text-secondary ${theme}`}
+                              style={{ fontSize: "12px" }}
+                            >
+                              <strong>🕐 Múi giờ:</strong> {log.timezone}
+                            </div>
+                          )}
+
+                          {log.isp && (
+                            <div
+                              className={`text-secondary ${theme}`}
+                              style={{ fontSize: "12px" }}
+                            >
+                              <strong>📡 Nhà mạng:</strong> {log.isp}
+                            </div>
+                          )}
+
                           <div
                             className={`text-secondary ${theme}`}
-                            style={{ fontSize: "12px", marginBottom: "6px" }}
+                            style={{ fontSize: "12px" }}
                           >
-                            <strong>IP:</strong> {log.ip}
+                            <strong>💻 Thiết bị:</strong> {deviceInfo.device}
                           </div>
-                        )}
 
-                        {log.location && (
                           <div
                             className={`text-secondary ${theme}`}
-                            style={{ fontSize: "12px", marginBottom: "6px" }}
+                            style={{ fontSize: "12px" }}
                           >
-                            <strong>Vị trí:</strong> {log.location}
+                            <strong>🌐 Trình duyệt:</strong>{" "}
+                            {deviceInfo.browser}
                           </div>
-                        )}
 
-                        <div
-                          className={`text-secondary ${theme}`}
-                          style={{ fontSize: "12px", marginBottom: "6px" }}
-                        >
-                          <strong>Thiết bị:</strong> {deviceInfo.device}
-                        </div>
-
-                        <div
-                          className={`text-secondary ${theme}`}
-                          style={{ fontSize: "12px", marginBottom: "6px" }}
-                        >
-                          <strong>Trình duyệt:</strong> {deviceInfo.browser}
-                        </div>
-
-                        <div
-                          className={`text-secondary ${theme}`}
-                          style={{ fontSize: "12px" }}
-                        >
-                          <strong>Hệ điều hành:</strong> {deviceInfo.os}
+                          <div
+                            className={`text-secondary ${theme}`}
+                            style={{ fontSize: "12px" }}
+                          >
+                            <strong>⚙️ Hệ điều hành:</strong> {deviceInfo.os}
+                          </div>
                         </div>
                       </div>
                     )}

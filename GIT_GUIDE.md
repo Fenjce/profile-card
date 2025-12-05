@@ -154,72 +154,131 @@ git status --ignored
 - Không commit file build như `node_modules/`, `dist/`, `.next/`
 - Không commit file IDE như `.vscode/`, `.idea/`
 
-## Xóa Deployments trong GitHub
+## Cấu hình Git Push mặc định
 
-### Cách 1: Xóa qua GitHub Web Interface
+### Thiết lập push tự động lên nhánh hiện tại
 
-1. Vào repository trên GitHub
-2. Click vào tab **"Environments"** (bên cạnh Settings)
-3. Click vào environment muốn xóa (ví dụ: Production)
-4. Click nút **"Delete environment"** ở góc phải
-5. Xác nhận xóa
-
-### Cách 2: Xóa từng deployment
-
-1. Vào repository trên GitHub
-2. Click vào **"Deployments"** (ở sidebar bên phải)
-3. Click vào deployment muốn xóa
-4. Click nút **"Delete deployment"**
-5. Xác nhận xóa
-
-⚠️ **Lưu ý:** Phải xóa từng deployment một, GitHub không có tính năng xóa hàng loạt qua UI.
-
-### Cách 3: Xóa hàng loạt bằng GitHub CLI
+Để không phải gõ `git push origin main` mỗi lần, chỉ cần gõ `git push`:
 
 ```bash
-# Cài đặt GitHub CLI (nếu chưa có)
-# Windows: winget install GitHub.cli
-# hoặc tải từ: https://cli.github.com/
+# Cấu hình push mặc định cho nhánh hiện tại
+git config --global push.default current
 
-# Đăng nhập
-gh auth login
-
-# Xóa tất cả deployments của một environment
-gh api repos/:owner/:repo/deployments \
-  --jq '.[] | .id' | \
-  xargs -I {} gh api -X DELETE repos/:owner/:repo/deployments/{}
+# Hoặc cấu hình cho từng repo
+git config push.default current
 ```
 
-### Cách 4: Xóa bằng GitHub API (PowerShell)
+### Thiết lập upstream tự động
+
+Khi push lần đầu, Git sẽ tự động thiết lập upstream:
+
+```bash
+# Cấu hình tự động set upstream
+git config --global push.autoSetupRemote true
+```
+
+### Workflow đơn giản hóa
+
+Sau khi cấu hình, workflow của bạn sẽ như sau:
+
+```bash
+# 1. Thêm tất cả thay đổi
+git add .
+
+# 2. Commit với message
+git commit -m "your message"
+
+# 3. Push (không cần chỉ định origin và branch)
+git push
+```
+
+### Alias để làm việc nhanh hơn
+
+Tạo các alias để gõ lệnh nhanh hơn:
+
+```bash
+# Cấu hình alias
+git config --global alias.ac '!git add . && git commit -m'
+git config --global alias.acp '!git add . && git commit -m "$1" && git push'
+
+# Sử dụng:
+git ac "your message"        # add + commit
+git acp "your message"       # add + commit + push
+```
+
+### Script nhanh (Windows)
+
+Tạo file `quick-push.bat` trong thư mục project:
+
+```batch
+@echo off
+git add .
+git commit -m "%*"
+git push
+echo.
+echo ✅ Pushed successfully!
+pause
+```
+
+Sử dụng:
+
+```bash
+quick-push "your commit message"
+```
+
+### Script nhanh (PowerShell)
+
+Tạo file `quick-push.ps1`:
 
 ```powershell
-# Thay YOUR_TOKEN, OWNER, REPO
-$token = "YOUR_GITHUB_TOKEN"
-$owner = "OWNER"
-$repo = "REPO"
+param([string]$message = "Update")
 
-# Lấy danh sách deployments
-$deployments = Invoke-RestMethod -Uri "https://api.github.com/repos/$owner/$repo/deployments" -Headers @{Authorization = "token $token"}
+git add .
+git commit -m $message
+git push
 
-# Xóa từng deployment
-foreach ($deployment in $deployments) {
-    # Đặt deployment về inactive trước
-    Invoke-RestMethod -Method Post -Uri "https://api.github.com/repos/$owner/$repo/deployments/$($deployment.id)/statuses" -Headers @{Authorization = "token $token"} -Body '{"state":"inactive"}' -ContentType "application/json"
-
-    # Xóa deployment
-    Invoke-RestMethod -Method Delete -Uri "https://api.github.com/repos/$owner/$repo/deployments/$($deployment.id)" -Headers @{Authorization = "token $token"}
-}
+Write-Host "`n✅ Pushed successfully!" -ForegroundColor Green
 ```
 
-### Tạo GitHub Token:
+Sử dụng:
 
-1. Vào **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)**
-2. Click **"Generate new token"**
-3. Chọn quyền: `repo` và `repo_deployments`
-4. Copy token và dùng trong script
+```powershell
+.\quick-push.ps1 "your message"
+# hoặc
+.\quick-push.ps1  # sẽ dùng message mặc định "Update"
+```
+
+### Kiểm tra cấu hình hiện tại
+
+```bash
+# Xem tất cả cấu hình
+git config --list
+
+# Xem cấu hình push
+git config push.default
+git config push.autoSetupRemote
+```
+
+### Các tùy chọn push.default
+
+```bash
+# current - push nhánh hiện tại lên nhánh cùng tên (khuyến nghị)
+git config --global push.default current
+
+# simple - push nhánh hiện tại lên upstream (mặc định)
+git config --global push.default simple
+
+# upstream - push lên nhánh upstream đã cấu hình
+git config --global push.default upstream
+
+# matching - push tất cả nhánh có tên trùng
+git config --global push.default matching
+```
 
 ### Tips:
 
-- Deployments từ Vercel/Netlify sẽ tự động tạo lại khi push code mới
-- Nên giữ lại một vài deployments gần nhất để rollback nếu cần
-- Xóa environment sẽ xóa tất cả deployments trong đó
+- ✅ Dùng `push.default current` để đơn giản nhất
+- ✅ Bật `push.autoSetupRemote true` để tự động setup upstream
+- ✅ Tạo alias hoặc script để làm việc nhanh hơn
+- ⚠️ Luôn kiểm tra `git status` trước khi commit
+- ⚠️ Viết commit message có ý nghĩa, tránh "update", "fix"

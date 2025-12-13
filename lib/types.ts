@@ -46,6 +46,7 @@ export interface SeasonalTheme {
   messages: string[]; // Array of messages
   backgroundColor?: string;
   textColor?: string;
+  icon?: string; // Emoji icon for the theme
 }
 export interface ProfileConfig {
   user: User;
@@ -56,6 +57,7 @@ export interface ProfileConfig {
     password: string;
   };
   stories: Story[];
+  seasonalThemes: SeasonalTheme[];
 }
 
 export interface LogEntry {

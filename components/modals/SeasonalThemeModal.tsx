@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { SeasonalTheme } from "@/lib/types";
-import { formatSeasonalThemeDate } from "@/lib/seasonalUtils";
-import { generateMultipleMessages } from "@/lib/aiMessageGenerator";
+import { formatSeasonalThemeDate } from "../../lib/seasonalUtils";
 
 interface SeasonalThemeModalProps {
   themes: SeasonalTheme[];
@@ -21,8 +20,7 @@ export default function SeasonalThemeModal({
   const [isActive, setIsActive] = useState(false);
   const [editingThemes, setEditingThemes] = useState<SeasonalTheme[]>(themes);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [isGenerating, setIsGenerating] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState("");
+
   const defaultTheme = {
     name: "",
     startDate: "",
@@ -87,31 +85,6 @@ export default function SeasonalThemeModal({
     setShowAddForm(false);
   };
 
-  const handleGenerateMessages = async (themeId: string, themeName: string) => {
-    setIsGenerating(themeId);
-
-    try {
-      const newMessages = await generateMultipleMessages(
-        themeId,
-        themeName,
-        3,
-        apiKey || undefined
-      );
-
-      setEditingThemes((prev) =>
-        prev.map((theme) =>
-          theme.id === themeId
-            ? { ...theme, messages: [...theme.messages, ...newMessages] }
-            : theme
-        )
-      );
-    } catch (error) {
-      console.error("Failed to generate messages:", error);
-    } finally {
-      setIsGenerating(null);
-    }
-  };
-
   const handleSave = () => {
     onSave(editingThemes);
     onClose();
@@ -123,8 +96,11 @@ export default function SeasonalThemeModal({
         className="social-modal"
         style={{
           maxWidth: "600px",
-          maxHeight: "90vh",
-          overflowY: "auto",
+          maxHeight: "none",
+          overflowY: "visible",
+          height: "auto",
+          minHeight: "auto",
+          padding: "80px 25px 40px",
         }}
       >
         {/* Close Button */}
@@ -148,32 +124,42 @@ export default function SeasonalThemeModal({
 
         <h2 className="social-modal-title">Quản lý Theme Mùa</h2>
 
-        {/* AI API Key Input */}
-        <div className={`card ${theme}`} style={{ marginBottom: "20px" }}>
-          <div style={{ marginBottom: "12px" }}>
+        {/* AI API Key Setting */}
+        <div
+          className={`card ${theme}`}
+          style={{ marginBottom: "16px", padding: "12px 16px" }}
+        >
+          <div style={{ marginBottom: "8px" }}>
             <div
               className={`text-primary ${theme}`}
               style={{
                 fontWeight: "600",
-                fontSize: "14px",
-                marginBottom: "8px",
+                fontSize: "13px",
+                marginBottom: "6px",
               }}
             >
-              🤖 AI Message Generator
+              🤖 AI API Key (Tùy chọn)
             </div>
             <input
               type="password"
-              placeholder="Hugging Face API Key (tùy chọn - để trống sẽ dùng messages có sẵn)"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="Hugging Face API Key - để trống sẽ dùng free tier"
+              value={localStorage.getItem("huggingface_api_key") || ""}
+              onChange={(e) => {
+                if (e.target.value) {
+                  localStorage.setItem("huggingface_api_key", e.target.value);
+                } else {
+                  localStorage.removeItem("huggingface_api_key");
+                }
+              }}
               className={`input ${theme}`}
-              style={{ fontSize: "13px", padding: "8px 12px" }}
+              style={{ fontSize: "12px", padding: "6px 10px" }}
             />
             <div
               className={`text-secondary ${theme}`}
-              style={{ fontSize: "11px", marginTop: "4px" }}
+              style={{ fontSize: "10px", marginTop: "3px" }}
             >
-              Lấy API key miễn phí tại:{" "}
+              API key để AI tự tạo câu chúc mới mỗi lần load trang. Lấy miễn phí
+              tại:{" "}
               <a
                 href="https://huggingface.co/settings/tokens"
                 target="_blank"
@@ -188,11 +174,21 @@ export default function SeasonalThemeModal({
 
         <div
           className="social-modal-content"
-          style={{ marginTop: "0", padding: "0" }}
+          style={{
+            marginTop: "10px",
+            padding: "0",
+            minHeight: "auto",
+            overflow: "visible",
+          }}
         >
           {/* Existing Themes */}
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+              marginTop: "0px",
+            }}
           >
             {editingThemes.map((seasonalTheme) => (
               <div key={seasonalTheme.id} className={`card ${theme}`}>
@@ -214,7 +210,12 @@ export default function SeasonalThemeModal({
                       >
                         {formatSeasonalThemeDate(
                           seasonalTheme.startDate,
-                          seasonalTheme.endDate
+                          seasonalTheme.id
+                        )}{" "}
+                        -{" "}
+                        {formatSeasonalThemeDate(
+                          seasonalTheme.endDate,
+                          seasonalTheme.id
                         )}
                       </div>
                     </div>
@@ -223,32 +224,17 @@ export default function SeasonalThemeModal({
                     className="flex items-center gap-8"
                     style={{ marginLeft: "auto" }}
                   >
-                    <button
-                      onClick={() =>
-                        handleGenerateMessages(
-                          seasonalTheme.id,
-                          seasonalTheme.name
-                        )
-                      }
-                      disabled={isGenerating === seasonalTheme.id}
-                      className="icon-btn"
-                      style={{
-                        color: "#10b981",
-                        width: "32px",
-                        height: "32px",
-                        opacity: isGenerating === seasonalTheme.id ? 0.5 : 1,
-                      }}
-                      title="Tạo thêm messages bằng AI"
-                    >
-                      {isGenerating === seasonalTheme.id ? "⏳" : "🤖"}
-                    </button>
                     {seasonalTheme.id.startsWith("custom-") && (
                       <button
                         onClick={() => handleDeleteTheme(seasonalTheme.id)}
-                        className="icon-btn"
                         style={{
+                          background: "transparent",
+                          border: "1px solid #ef4444",
                           color: "#ef4444",
                           width: "32px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
                           height: "32px",
                         }}
                         title="Xóa theme"
@@ -256,20 +242,25 @@ export default function SeasonalThemeModal({
                         🗑️
                       </button>
                     )}
-                    <div
-                      className="toggle-switch"
+                    <button
                       onClick={() => handleToggleTheme(seasonalTheme.id)}
+                      style={{
+                        fontSize: "12px",
+                        padding: "6px 12px",
+                        minWidth: "50px",
+                        height: "32px",
+                        background: "transparent",
+                        border: seasonalTheme.enabled
+                          ? "1px solid #10b981"
+                          : "1px solid #6b7280",
+                        color: seasonalTheme.enabled ? "#10b981" : "#6b7280",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                      }}
                     >
-                      <div
-                        className={`toggle-slider ${
-                          seasonalTheme.enabled ? "active" : ""
-                        }`}
-                      >
-                        <span className="toggle-text">
-                          {seasonalTheme.enabled ? "Bật" : "Tắt"}
-                        </span>
-                      </div>
-                    </div>
+                      {seasonalTheme.enabled ? "Bật" : "Tắt"}
+                    </button>
                   </div>
                 </div>
 
@@ -328,24 +319,32 @@ export default function SeasonalThemeModal({
                   />
                   <div className="flex gap-8">
                     <input
-                      type="date"
-                      value={`2024-${seasonalTheme.startDate}`}
+                      type="text"
+                      placeholder={
+                        seasonalTheme.id === "birthday"
+                          ? "DD-MM-YYYY (VD: 15-02-2001)"
+                          : "DD-MM (VD: 01-03)"
+                      }
+                      value={seasonalTheme.startDate}
                       onChange={(e) => {
-                        const date = e.target.value.split("-");
                         handleUpdateTheme(seasonalTheme.id, {
-                          startDate: `${date[1]}-${date[2]}`,
+                          startDate: e.target.value,
                         });
                       }}
                       className={`input ${theme}`}
                       style={{ fontSize: "13px", padding: "8px 12px", flex: 1 }}
                     />
                     <input
-                      type="date"
-                      value={`2024-${seasonalTheme.endDate}`}
+                      type="text"
+                      placeholder={
+                        seasonalTheme.id === "birthday"
+                          ? "DD-MM-YYYY (VD: 15-02-2001)"
+                          : "DD-MM (VD: 31-05)"
+                      }
+                      value={seasonalTheme.endDate}
                       onChange={(e) => {
-                        const date = e.target.value.split("-");
                         handleUpdateTheme(seasonalTheme.id, {
-                          endDate: `${date[1]}-${date[2]}`,
+                          endDate: e.target.value,
                         });
                       }}
                       className={`input ${theme}`}
@@ -355,27 +354,6 @@ export default function SeasonalThemeModal({
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Generate All Messages */}
-          <div style={{ marginTop: "20px", display: "flex", gap: "12px" }}>
-            <button
-              onClick={async () => {
-                setIsGenerating("all");
-                for (const theme of editingThemes) {
-                  await handleGenerateMessages(theme.id, theme.name);
-                  await new Promise((resolve) => setTimeout(resolve, 2000)); // 2s delay between themes
-                }
-                setIsGenerating(null);
-              }}
-              disabled={isGenerating !== null}
-              className="btn btn-secondary"
-              style={{ flex: 1, opacity: isGenerating !== null ? 0.5 : 1 }}
-            >
-              {isGenerating === "all"
-                ? "⏳ Đang tạo..."
-                : "🤖 Tạo Messages Cho Tất Cả"}
-            </button>
           </div>
 
           {/* Add New Theme */}
@@ -422,24 +400,26 @@ export default function SeasonalThemeModal({
 
                 <div className="flex gap-8">
                   <input
-                    type="date"
+                    type="text"
+                    placeholder="Ngày bắt đầu (DD-MM hoặc DD-MM-YYYY)"
+                    value={newTheme.startDate || ""}
                     onChange={(e) => {
-                      const date = e.target.value.split("-");
                       setNewTheme((prev) => ({
                         ...prev,
-                        startDate: `${date[1]}-${date[2]}`,
+                        startDate: e.target.value,
                       }));
                     }}
                     className={`input ${theme}`}
                     style={{ flex: 1 }}
                   />
                   <input
-                    type="date"
+                    type="text"
+                    placeholder="Ngày kết thúc (DD-MM hoặc DD-MM-YYYY)"
+                    value={newTheme.endDate || ""}
                     onChange={(e) => {
-                      const date = e.target.value.split("-");
                       setNewTheme((prev) => ({
                         ...prev,
-                        endDate: `${date[1]}-${date[2]}`,
+                        endDate: e.target.value,
                       }));
                     }}
                     className={`input ${theme}`}

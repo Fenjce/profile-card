@@ -63,116 +63,113 @@ export const profileConfig: ProfileConfig = {
       id: "spring",
       name: "Mùa Xuân",
       enabled: true,
-      startDate: "03-01",
-      endDate: "05-31",
-      messages: ["🌸 Chào mừng mùa xuân! Hoa nở rộ khắp nơi"],
+      startDate: "01-03",
+      endDate: "31-05",
+      messages: [
+        "Chào mừng mùa xuân! Hoa nở rộ khắp nơi",
+        "Xuân về mang theo niềm vui và hy vọng",
+        "Mùa xuân tươi mới! Hạnh phúc nở rộ như hoa",
+      ],
       backgroundColor:
         "linear-gradient(135deg, rgba(255, 182, 193, 0.9) 0%, rgba(144, 238, 144, 0.9) 100%)",
       textColor: "#1e293b",
-    },
-  ],
-  stories: [
-    {
-      createdAt: "09/12/2025-13:54:56",
-      content: "Join my discord or contact me: Fenjce #2025",
-      image:
-        "https://lz6lqtpmbu3sjwrh.public.blob.vercel-storage.com/story-image-1765263292357-9nJN53B4shnmdcLkU8KqiPKJQmYy6F.jpg",
-      mediaSize: "1.07 MB",
-      expiresIn: -1,
-      pinned: true,
-    },
-    {
-      createdAt: "01/12/2025-00:00:00",
-      content: "my dream car",
-      image:
-        "https://lz6lqtpmbu3sjwrh.public.blob.vercel-storage.com/story-image-1764743541656-aCitRZyGhyYSCPpXEsltneFh7BXdrw.jpg",
-      mediaSize: "68.11 KB",
-      expiresIn: -1,
-      pinned: false,
-    },
-  ],
-
-  seasonalThemes: [
-    {
-      id: "spring",
-      name: "Mùa Xuân",
-      enabled: true,
-      startDate: "03-01", // 1 tháng 3
-      endDate: "05-31", // 31 tháng 5
-      messages: ["🌸 Chào mừng mùa xuân! Hoa nở rộ khắp nơi"],
-      backgroundColor:
-        "linear-gradient(135deg, rgba(255, 182, 193, 0.9) 0%, rgba(144, 238, 144, 0.9) 100%)",
-      textColor: "#1e293b",
+      icon: "🌸",
     },
     {
       id: "summer",
       name: "Mùa Hè",
       enabled: true,
-      startDate: "06-01", // 1 tháng 6
-      endDate: "08-31", // 31 tháng 8
-      messages: ["☀️ Mùa hè rực rỡ! Tận hưởng những ngày nắng đẹp"],
+      startDate: "01-06",
+      endDate: "31-08",
+      messages: [
+        "Mùa hè rực rỡ! Tận hưởng những ngày nắng đẹp",
+        "Hè vui vẻ! Những kỷ niệm đẹp đang chờ đón",
+        "Mùa hè năng động! Tràn đầy sức sống",
+      ],
       backgroundColor:
         "linear-gradient(135deg, rgba(255, 215, 0, 0.9) 0%, rgba(255, 165, 0, 0.9) 100%)",
       textColor: "#1e293b",
+      icon: "☀️",
     },
     {
       id: "autumn",
       name: "Mùa Thu",
       enabled: true,
-      startDate: "09-01", // 1 tháng 9
-      endDate: "11-30", // 30 tháng 11
-      messages: ["🍂 Mùa thu lãng mạn! Lá vàng rơi khắp phố phường"],
+      startDate: "01-09",
+      endDate: "30-11",
+      messages: [
+        "Mùa thu lãng mạn! Lá vàng rơi khắp phố phường",
+        "Thu về yên bình! Sắc màu đẹp của cuộc sống",
+        "Mùa thu thơ mộng! Thời gian để suy ngẫm",
+      ],
       backgroundColor:
         "linear-gradient(135deg, rgba(255, 140, 0, 0.9) 0%, rgba(139, 69, 19, 0.9) 100%)",
       textColor: "#ffffff",
+      icon: "🍂",
     },
     {
       id: "winter",
       name: "Mùa Đông",
       enabled: true,
-      startDate: "12-01", // 1 tháng 12
-      endDate: "02-28", // 28 tháng 2
-      messages: ["❄️ Mùa đông lạnh giá! Tuyết trắng phủ khắp nơi"],
+      startDate: "01-12",
+      endDate: "28-02",
+      messages: [
+        "Mùa đông lạnh giá! Tuyết trắng phủ khắp nơi",
+        "Đông ấm áp! Tình người gần gũi hơn",
+        "Mùa đông yên bình! Bình an trong từng khoảnh khắc",
+      ],
       backgroundColor:
         "linear-gradient(135deg, rgba(173, 216, 230, 0.9) 0%, rgba(240, 248, 255, 0.9) 100%)",
       textColor: "#1e293b",
+      icon: "❄️",
     },
     {
       id: "lunar-new-year",
       name: "Tết Nguyên Đán",
       enabled: true,
-      startDate: "01-20", // Tùy chỉnh theo năm
-      endDate: "02-05", // Tùy chỉnh theo năm
-      messages: ["🧧 Chúc Mừng Năm Mới! Vạn sự như ý, an khang thịnh vượng!"],
+      startDate: "20-01",
+      endDate: "05-02",
+      messages: [
+        "Chúc Mừng Năm Mới! Vạn sự như ý, an khang thịnh vượng!",
+        "Tết đến xuân về! Chúc năm mới nhiều may mắn",
+        "Năm mới hạnh phúc! Gia đình sum vầy, sức khỏe dồi dào",
+      ],
       backgroundColor:
         "linear-gradient(135deg, rgba(220, 20, 60, 0.9) 0%, rgba(255, 215, 0, 0.9) 100%)",
       textColor: "#ffffff",
+      icon: "🧧",
     },
     {
       id: "christmas",
       name: "Giáng Sinh",
       enabled: true,
-      startDate: "12-20", // 20 tháng 12
-      endDate: "12-26", // 26 tháng 12
+      startDate: "20-12",
+      endDate: "26-12",
       messages: [
-        "🎄 Chúc Mừng Giáng Sinh! Chúc bạn có một mùa lễ ấm áp và hạnh phúc!",
+        "Chúc Mừng Giáng Sinh! Chúc bạn có một mùa lễ ấm áp và hạnh phúc!",
+        "Noel an lành! Niềm vui và yêu thương tràn ngập",
+        "Giáng sinh ấm áp! Chúc mọi điều tốt đẹp đến với bạn",
       ],
       backgroundColor:
         "linear-gradient(135deg, rgba(220, 20, 60, 0.9) 0%, rgba(34, 139, 34, 0.9) 100%)",
       textColor: "#ffffff",
+      icon: "🎄",
     },
     {
       id: "birthday",
       name: "Sinh Nhật",
       enabled: true,
-      startDate: "02-15", // Sinh nhật thật
-      endDate: "02-15", // Chỉ 1 ngày
+      startDate: "15-02-2001",
+      endDate: "15-02-2001",
       messages: [
-        "🎂 Chúc Mừng Sinh Nhật! Chúc bạn tuổi mới nhiều sức khỏe và hạnh phúc!",
+        "Chúc Mừng Sinh Nhật {age} tuổi! Chúc bạn tuổi mới nhiều sức khỏe và hạnh phúc!",
+        "Sinh nhật vui vẻ! {age} tuổi rồi, một năm mới tràn đầy thành công",
+        "Happy Birthday! {age} tuổi với những ước mơ thành hiện thực",
       ],
       backgroundColor:
         "linear-gradient(135deg, rgba(255, 192, 203, 0.9) 0%, rgba(255, 20, 147, 0.9) 100%)",
       textColor: "#ffffff",
+      icon: "🎂",
     },
   ],
 };

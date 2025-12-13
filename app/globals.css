@@ -1437,6 +1437,7 @@ body.dark-mode .social-modal-overlay {
   position: relative;
   width: 100%;
   height: 100%;
+  min-height: 500px;
   display: flex;
   flex-direction: column;
   padding: 80px 25px 25px;
@@ -1645,13 +1646,13 @@ body.dark-mode .social-modal-icon-instagram .instagram-icon-path {
   justify-content: center;
   align-items: center;
   text-align: center;
-  margin-top: -50px;
+  margin-top: 0;
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.5s ease-in-out 0.3s, transform 0.5s ease-out 0.3s;
   overflow-y: auto;
   min-height: 0;
-  padding: 25px 25px;
+  padding: 25px 25px 120px 25px; /* Add bottom padding to avoid footer overlap */
 }
 
 .social-modal-overlay.active .social-modal-content {
@@ -2361,5 +2362,318 @@ input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
   50% {
     opacity: 1;
     transform: scale(1.2);
+  }
+}
+
+/* ============================================
+   SEASONAL MESSAGE STYLES
+   ============================================ */
+
+.seasonal-message {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 16px 20px;
+  border-radius: 20px;
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
+  overflow: hidden;
+  pointer-events: auto;
+  /* Enhanced glass effect */
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  /* Subtle glow animation */
+  animation: seasonalGlow 3s ease-in-out infinite alternate;
+}
+
+.seasonal-message.loaded {
+  opacity: 1;
+}
+
+.seasonal-message:hover {
+  box-shadow: 0 35px 70px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.seasonal-message-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.seasonal-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  display: block;
+  text-align: center;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.seasonal-char {
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+  display: inline;
+}
+
+.seasonal-char.visible {
+  opacity: 1;
+}
+
+/* Season-specific background effects */
+.seasonal-message[data-season="spring"] {
+  position: relative;
+}
+
+.seasonal-message[data-season="spring"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 20% 30%,
+      rgba(255, 182, 193, 0.3) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(144, 238, 144, 0.3) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.seasonal-message[data-season="summer"] {
+  position: relative;
+}
+
+.seasonal-message[data-season="summer"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 30% 20%,
+      rgba(255, 215, 0, 0.4) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 70% 80%,
+      rgba(255, 165, 0, 0.3) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.seasonal-message[data-season="autumn"] {
+  position: relative;
+}
+
+.seasonal-message[data-season="autumn"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 25% 40%,
+      rgba(255, 140, 0, 0.3) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 75% 60%,
+      rgba(139, 69, 19, 0.2) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.seasonal-message[data-season="winter"] {
+  position: relative;
+}
+
+.seasonal-message[data-season="winter"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 40% 30%,
+      rgba(173, 216, 230, 0.4) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 60% 70%,
+      rgba(240, 248, 255, 0.3) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.seasonal-message[data-season="christmas"] {
+  position: relative;
+}
+
+.seasonal-message[data-season="christmas"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 30% 40%,
+      rgba(220, 20, 60, 0.3) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 70% 60%,
+      rgba(34, 139, 34, 0.3) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.seasonal-message[data-season="lunar-new-year"] {
+  position: relative;
+}
+
+.seasonal-message[data-season="lunar-new-year"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 35% 25%,
+      rgba(220, 20, 60, 0.4) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 65% 75%,
+      rgba(255, 215, 0, 0.4) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.seasonal-message[data-season="birthday"] {
+  position: relative;
+}
+
+.seasonal-message[data-season="birthday"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+      circle at 40% 30%,
+      rgba(255, 192, 203, 0.4) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 60% 70%,
+      rgba(255, 20, 147, 0.3) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Seasonal glow animation */
+@keyframes seasonalGlow {
+  0% {
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.15), 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .seasonal-message-container {
+    top: -80px !important;
+  }
+
+  .seasonal-message {
+    padding: 14px 16px;
+    border-radius: 16px;
+  }
+
+  .seasonal-text {
+    font-size: 14px;
+    letter-spacing: 0.2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .seasonal-message-container {
+    top: -70px !important;
+  }
+
+  .seasonal-message {
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+
+  .seasonal-text {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 360px) {
+  .seasonal-message-container {
+    top: -60px !important;
+  }
+
+  .seasonal-message {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .seasonal-text {
+    font-size: 12px;
+    letter-spacing: 0.1px;
   }
 }

@@ -27,6 +27,7 @@ import InformationModal from "@/components/modals/InformationModal";
 import { useToast } from "@/components/providers/ToastProvider";
 import { Messages } from "@/lib/messages";
 import LogModal from "@/components/modals/LogModal";
+import SeasonalThemeModal from "@/components/modals/SeasonalThemeModal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 // Social Icon Helper
@@ -149,6 +150,8 @@ export default function EditPage() {
   const [showDeleteStoryConfirm, setShowDeleteStoryConfirm] = useState(false);
   const [storyToDelete, setStoryToDelete] = useState<Story | null>(null);
   const [isInformationModalClosing, setIsInformationModalClosing] =
+    useState(false);
+  const [isSeasonalThemeModalOpen, setIsSeasonalThemeModalOpen] =
     useState(false);
   const [isConfigLoaded, setIsConfigLoaded] = useState(false); // Track if config has been loaded from API
   const CONTENT_MAX_LENGTH = 140;
@@ -672,6 +675,28 @@ export default function EditPage() {
           }}
         >
           Đổi mật khẩu
+        </button>
+        <button
+          onClick={() => setIsSeasonalThemeModalOpen(true)}
+          style={{
+            padding: "10px 20px",
+            background: "rgba(34, 197, 94, 0.1)",
+            border: "2px solid #22c55e",
+            borderRadius: "8px",
+            color: "#22c55e",
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: "500",
+            transition: "all 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(34, 197, 94, 0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(34, 197, 94, 0.1)";
+          }}
+        >
+          Sửa Season
         </button>
         <button
           onClick={handleLogout}
@@ -2480,6 +2505,30 @@ export default function EditPage() {
         }}
         theme={theme as "light" | "dark"}
       />
+
+      {/* Seasonal Theme Modal */}
+      {isSeasonalThemeModalOpen && (
+        <SeasonalThemeModal
+          themes={config.seasonalThemes || []}
+          onSave={async (themes) => {
+            setIsManualSave(true);
+            const updatedConfig = {
+              ...config,
+              seasonalThemes: themes,
+            };
+            setConfig(updatedConfig);
+            try {
+              await saveConfig(updatedConfig);
+              showToast("Cập nhật seasonal themes thành công!", "success");
+            } catch (error) {
+              console.error("Error saving seasonal themes:", error);
+              showToast("Lỗi khi lưu seasonal themes", "error");
+            }
+          }}
+          onClose={() => setIsSeasonalThemeModalOpen(false)}
+          theme={theme as "light" | "dark"}
+        />
+      )}
     </div>
   );
 }

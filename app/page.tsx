@@ -14,7 +14,9 @@ import SocialModal from "@/components/modals/SocialModal";
 import InformationModal from "@/components/modals/InformationModal";
 import ProfileCardSkeleton from "@/components/ui/ProfileCardSkeleton";
 import SmoothTransition from "@/components/ui/SmoothTransition";
+import SeasonalMessage from "@/components/ui/SeasonalMessage";
 import { useConfigPolling } from "@/hooks/useConfigPolling";
+import { isDateInRange } from "@/lib/seasonalUtils";
 
 const STORY_CLOSE_TIMEOUT = 800;
 
@@ -186,9 +188,40 @@ export default function Home() {
     setTimeout(() => setIsSocialModalClosing(false), STORY_CLOSE_TIMEOUT);
   }, []);
 
+  // Find current seasonal theme
+  const currentSeasonalTheme = useMemo(() => {
+    if (!config?.seasonalThemes) return null;
+
+    return (
+      config.seasonalThemes.find(
+        (theme) =>
+          theme.enabled && isDateInRange(theme.startDate, theme.endDate)
+      ) || null
+    );
+  }, [config?.seasonalThemes]);
+
   return (
     <div className="container">
       <div className={cardClass}>
+        {/* Seasonal message container - always present to prevent layout shift */}
+        <div
+          className="seasonal-message-container"
+          style={{
+            position: "absolute",
+            top: "-90px",
+            left: 0,
+            right: 0,
+            width: "100%",
+            height: 0,
+            pointerEvents: currentSeasonalTheme ? "auto" : "none",
+            zIndex: 1001,
+          }}
+        >
+          {!isLoading && config && currentSeasonalTheme && (
+            <SeasonalMessage theme={currentSeasonalTheme} />
+          )}
+        </div>
+
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
 
         {isLoading || !config ? (

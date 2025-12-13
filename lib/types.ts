@@ -37,6 +37,16 @@ export interface Story {
   mediaSize?: string; // File size for display (e.g., "2.5 MB")
 }
 
+export interface SeasonalTheme {
+  id: string;
+  name: string;
+  enabled: boolean;
+  startDate: string; // MM-DD format
+  endDate: string; // MM-DD format
+  messages: string[]; // Array of messages
+  backgroundColor?: string;
+  textColor?: string;
+}
 export interface ProfileConfig {
   user: User;
   information: InformationItem[]; // Thông tin cá nhân

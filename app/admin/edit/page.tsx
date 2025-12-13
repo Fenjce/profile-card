@@ -2518,7 +2518,10 @@ export default function EditPage() {
             };
             setConfig(updatedConfig);
             try {
-              await saveConfig(updatedConfig);
+              const token = getAdminToken();
+              if (token && isAuthenticated()) {
+                await saveConfig(updatedConfig, token);
+              }
               showToast("Cập nhật seasonal themes thành công!", "success");
             } catch (error) {
               console.error("Error saving seasonal themes:", error);

@@ -1,127 +1,77 @@
-# Profile Card
+# 👤 Profile Card
 
-<div align="center">
+Ứng dụng thẻ hồ sơ cá nhân hiện đại với giao diện đẹp mắt và tính năng quản lý nội dung linh hoạt.
 
-**A modern, elegant profile card solution built with Next.js**
+## ✨ Tính năng
 
-_Showcase your stories, social presence, and personal information in a beautiful, responsive design_
+**📋 Hiển thị hồ sơ**
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+- Thẻ hồ sơ cá nhân với avatar, tên, chức danh và tiểu sử
+- 🌓 Chế độ sáng/tối tự động
+- 📱 Giao diện responsive trên mọi thiết bị
 
-</div>
+**📸 Quản lý Stories**
 
----
+- ➕ Tạo, chỉnh sửa và xóa stories
+- 🖼️ Hiển thị ảnh và mô tả cho mỗi story
+- ⏰ Tự động xóa stories hết hạn
 
-## ✨ Features
+**🔗 Liên kết Xã Hội**
 
-### 🎨 **Modern & Elegant Design**
+- 🌐 Kết nối đến các nền tảng xã hội
+- 🎨 Hiển thị biểu tượng tùy chỉnh
+- 📲 Modal hiển thị chi tiết liên kết
 
-- Clean, minimalist interface with smooth animations and transitions
-- Professional typography and spacing
-- Intuitive user experience with hover effects and visual feedback
+**ℹ️ Thông tin Chi Tiết**
 
-### 🌓 **Theme System**
+- 📞 Hiển thị thông tin liên hệ đầy đủ
+- ✏️ Quản lý thông tin từ admin panel
+- 🔄 Cập nhật thông tin theo thời gian thực
 
-- Seamless dark/light mode toggle
-- Persistent theme preference across sessions
-- Smooth theme transitions with CSS variables
+**🔐 Quản lý Admin**
 
-### 📖 **Stories Feature**
+- 🔑 Đăng nhập bảo mật
+- 📝 Chỉnh sửa thông tin hồ sơ
+- 📚 Quản lý stories và liên kết xã hội
+- 📊 Xem lịch sử truy cập
 
-- Share your moments with auto-expiring stories (24-hour default)
-- Full-screen story viewer with swipe navigation
-- Support for images and videos with optimized loading
-- Automatic cleanup of expired content
+**📈 Theo dõi Truy cập**
 
-### 📋 **Personal Information Management**
+- 📍 Ghi lại thông tin khách truy cập
+- 🗺️ Phát hiện vị trí địa lý
+- 💻 Phân loại thiết bị (Mobile, Tablet, Desktop)
 
-- Flexible information cards with multiple types (email, phone, address, website, custom)
-- Smart link generation (mailto, tel, maps integration)
-- Privacy controls with hide/show functionality for sensitive information
-- Customizable labels and values
+## 🛠️ Công nghệ
 
-### 🔗 **Social Media Integration**
+Xây dựng với Next.js 14, React 18, TypeScript và các công nghệ hiện đại khác.
 
-- Connect multiple social platforms (Facebook, Instagram, Twitter, GitHub, Discord, etc.)
-- Customizable social modals with titles, descriptions, and call-to-action buttons
-- Direct links to your social profiles
-- Icon-based navigation
+## 📋 Yêu cầu
 
-### 🖼️ **Avatar Management**
+Node.js 18+ và npm/yarn
 
-- Image cropping and customization tool
-- Support for original and cropped versions
-- Click-to-view stories functionality
-- Responsive avatar display
+## 🚀 Cài đặt
 
-### 🔐 **Admin Panel**
+```bash
+npm install
+npm run dev
+```
 
-- Secure authentication system
-- Comprehensive content management interface
-- Real-time editing with instant preview
-- Story creation and management
-- Profile information editor
-- Social links configuration
+Ứng dụng sẽ chạy tại `http://localhost:3000`
 
-### 💾 **Data Persistence**
+## 🔑 Biến Môi Trường
 
-- Cloud storage via Upstash Redis (Vercel KV)
-- Local caching for instant loading
-- Automatic synchronization across devices
-- Reliable data backup and recovery
+Để sử dụng đầy đủ tính năng, cấu hình các biến môi trường sau:
 
-### ⚡ **Performance Optimized**
+- `UPSTASH_REDIS_REST_URL` - URL Redis từ Upstash
+- `UPSTASH_REDIS_REST_TOKEN` - Token Redis từ Upstash
+- `NEXT_PUBLIC_HUGGINGFACE_API_KEY` - API key từ Hugging Face (tùy chọn)
 
-- Fast initial load with localStorage caching
-- Lazy loading for images and media
-- Optimized bundle size
-- Efficient state management
+Nếu không cấu hình, ứng dụng sẽ sử dụng localStorage làm mặc định.
 
-### 📱 **Fully Responsive**
+## 🌍 Triển khai
 
-- Perfect display on all screen sizes
-- Mobile-first approach
-- Touch-friendly interactions
-- Adaptive layouts for desktop, tablet, and mobile
+Ứng dụng được tối ưu hóa để triển khai trên Vercel. Chỉ cần kết nối repository và Vercel sẽ tự động build và deploy.
 
----
+## 📄 License
 
-## 🎯 Use Cases
-
-- **Personal Portfolio** - Showcase your work and connect with visitors
-- **Professional Profile** - Share your expertise and contact information
-- **Social Media Hub** - Centralize all your social presence
-- **Event Landing Page** - Quick access to your stories and updates
-- **Business Card** - Modern digital alternative to traditional cards
-
----
-
-## 🛠️ Tech Stack
-
-- **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript
-- **Styling:** CSS with CSS Variables
-- **Storage:** Upstash Redis (via Vercel KV)
-- **Deployment:** Vercel
-
----
-
-## 📚 Documentation
-
-For setup instructions, deployment guide, and configuration details, please refer to [SETUP.md](./SETUP.md).
-
----
-
-## 📝 License
-
-MIT License - feel free to use this for your own profile!
-
----
-
-<div align="center">
-
-**Built with ❤️ using Next.js**
-
-</div>
+Private

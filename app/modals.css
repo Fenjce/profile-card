@@ -116,14 +116,21 @@
 
 /* Log Modal Specific */
 .log-item {
-  padding: 12px 16px;
-  border-radius: 12px;
+  padding: 16px;
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.log-item:last-child {
+  margin-bottom: 0;
 }
 
 .log-item:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .log-item.dark {
@@ -149,13 +156,13 @@
 .log-item-compact {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
+  width: 100%;
 }
 
 .log-item-expanded {
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
 }
 
 .log-item-expanded.dark {
@@ -167,9 +174,19 @@
 }
 
 .log-expand-icon {
-  font-size: 18px;
-  transition: transform 0.2s ease;
+  font-size: 14px;
+  transition: transform 0.3s ease;
   flex-shrink: 0;
+  opacity: 0.6;
+  margin-left: auto;
+}
+
+.log-expand-icon.dark {
+  color: var(--text-primary-dark);
+}
+
+.log-expand-icon.light {
+  color: var(--text-primary-light);
 }
 
 .log-expand-icon.expanded {

@@ -1,121 +1,272 @@
 import { ProfileConfig } from "./types";
 import { profileConfig as defaultConfig } from "./config";
+import { retryWithBackoff } from "./retry";
 
 const API_BASE = "/api/config";
 
+// Helper: Kiểm tra xem có Vercel/Upstash không
+function isVercelEnvironment(): boolean {
+	return !!(
+		process.env.UPSTASH_REDIS_REST_URL ||
+		process.env.UPSTASH_REDIS_REST_TOKEN ||
+		process.env.KV_REST_API_URL ||
+		process.env.KV_URL ||
+		process.env.VERCEL
+	);
+}
+
+// Helper: Lấy config từ localStorage
+function getConfigFromLocalStorage(): ProfileConfig | null {
+	if (typeof window === "undefined") return null;
+	try {
+		const stored = localStorage.getItem("profileConfig");
+		if (stored) {
+			const parsed = JSON.parse(stored);
+			if (parsed && parsed.user) {
+				return parsed;
+			}
+		}
+	} catch (error) {
+		console.error("Error reading from localStorage:", error);
+	}
+	return null;
+}
+
+// Helper: Lưu config vào localStorage
+function saveConfigToLocalStorage(config: ProfileConfig): void {
+	if (typeof window === "undefined") return;
+	try {
+		localStorage.setItem("profileConfig", JSON.stringify(config));
+	} catch (error) {
+		console.error("Error saving to localStorage:", error);
+	}
+}
+
 export async function fetchConfig(): Promise<ProfileConfig> {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+	// Nếu là localhost (không có Vercel), dùng localStorage
+	if (typeof window !== "undefined" && !isVercelEnvironment()) {
+		const localConfig = getConfigFromLocalStorage();
+		if (localConfig) {
+			console.log("Using config from localStorage");
+			return localConfig;
+		}
+		console.log("No config in localStorage, using default");
+		return defaultConfig;
+	}
 
-    const response = await fetch(API_BASE, {
-      cache: "no-store",
-      signal: controller.signal,
-    });
+	// Nếu có Vercel, thử fetch từ API với retry logic
+	const result = await retryWithBackoff(
+		async () => {
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    clearTimeout(timeoutId);
+			try {
+				const response = await fetch(API_BASE, {
+					// Use cache: 'default' to respect Cache-Control headers
+					// This enables browser caching with stale-while-revalidate pattern
+					cache: "default",
+					signal: controller.signal,
+				});
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch config: ${response.status} ${response.statusText}`
-      );
-    }
+				clearTimeout(timeoutId);
 
-    const config = await response.json();
+				if (!response.ok) {
+					throw new Error(`Failed to fetch config: ${response.status} ${response.statusText}`);
+				}
 
-    if (!config || !config.user) {
-      console.warn("API returned invalid config, using default");
-      return defaultConfig;
-    }
+				const config = await response.json();
 
-    return config;
-  } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
-      console.log("API fetch timeout, using default config");
-    } else {
-      console.error("Error fetching config from API:", error);
-    }
-    return defaultConfig;
-  }
+				if (!config || !config.user) {
+					console.warn("API returned invalid config, using default");
+					return defaultConfig;
+				}
+
+				// Lưu vào localStorage làm backup
+				if (typeof window !== "undefined") {
+					saveConfigToLocalStorage(config);
+				}
+
+				return config;
+			} finally {
+				clearTimeout(timeoutId);
+			}
+		},
+		{
+			maxRetries: 3,
+			initialDelayMs: 100,
+			maxDelayMs: 2000,
+			shouldRetry: (error: any) => {
+				// Retry on network errors and timeouts
+				if (error instanceof TypeError) {
+					return true;
+				}
+				if (error?.name === "AbortError") {
+					return true;
+				}
+				if (error?.message?.includes("timeout")) {
+					return true;
+				}
+				// Don't retry on invalid config
+				return false;
+			},
+		},
+	);
+
+	if (result.success) {
+		return result.data!;
+	}
+
+	// Fallback to localStorage
+	const localConfig = getConfigFromLocalStorage();
+	if (localConfig) {
+		console.log("API failed after retries, using config from localStorage");
+		return localConfig;
+	}
+
+	console.error("API failed after retries, using default config");
+	return defaultConfig;
 }
 
 let isSaving = false;
 let saveQueue: Array<{
-  config: ProfileConfig;
-  adminToken: string;
-  resolve: (value: {
-    success: boolean;
-    localStorage_only?: boolean;
-    message?: string;
-  }) => void;
-  reject: (reason?: any) => void;
+	config: ProfileConfig;
+	adminToken: string;
+	resolve: (value: { success: boolean; localStorage_only?: boolean; message?: string }) => void;
+	reject: (reason?: any) => void;
 }> = [];
 
 async function processSaveQueue() {
-  if (isSaving || saveQueue.length === 0) return;
+	if (isSaving || saveQueue.length === 0) return;
 
-  isSaving = true;
-  const { config, adminToken, resolve } = saveQueue.shift()!;
+	isSaving = true;
+	const { config, adminToken, resolve } = saveQueue.shift()!;
 
-  try {
-    const response = await fetch(API_BASE, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${adminToken}`,
-      },
-      body: JSON.stringify(config),
-    });
+	// Nếu là localhost, chỉ lưu vào localStorage
+	if (typeof window !== "undefined" && !isVercelEnvironment()) {
+		try {
+			saveConfigToLocalStorage(config);
+			console.log("Config saved to localStorage");
+			resolve({ success: true, localStorage_only: true });
+		} catch (error) {
+			console.error("Error saving to localStorage:", error);
+			resolve({
+				success: false,
+				message: error instanceof Error ? error.message : "Unknown error",
+			});
+		} finally {
+			isSaving = false;
+			setTimeout(() => processSaveQueue(), 100);
+		}
+		return;
+	}
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error("Error saving config:", error);
-      resolve({ success: false, message: error.message || error.error });
-    } else {
-      const result = await response.json();
-      if (result.localStorage_only) {
-        console.warn("Upstash rate limit reached:", result.message);
-        resolve({
-          success: true,
-          localStorage_only: true,
-          message: result.message,
-        });
-      } else {
-        resolve({ success: true });
-      }
-    }
-  } catch (error) {
-    console.error("Error saving config to API:", error);
-    resolve({
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
-  } finally {
-    isSaving = false;
-    setTimeout(() => processSaveQueue(), 100);
-  }
+	// Nếu có Vercel, lưu vào API với retry logic
+	const result = await retryWithBackoff(
+		async () => {
+			const response = await fetch(API_BASE, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${adminToken}`,
+				},
+				body: JSON.stringify(config),
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				console.error("Error saving config:", error);
+				throw new Error(error.message || error.error || "Failed to save config");
+			}
+
+			return response.json();
+		},
+		{
+			maxRetries: 3,
+			initialDelayMs: 100,
+			maxDelayMs: 2000,
+			shouldRetry: (error: any) => {
+				// Retry on network errors
+				if (error instanceof TypeError) {
+					return true;
+				}
+				// Retry on server errors
+				if (error?.status >= 500) {
+					return true;
+				}
+				// Retry on rate limit
+				if (error?.status === 429) {
+					return true;
+				}
+				// Don't retry on auth errors
+				if (error?.status === 401) {
+					return false;
+				}
+				return false;
+			},
+		},
+	);
+
+	try {
+		if (result.success) {
+			const apiResult = result.data!;
+			// Lưu backup vào localStorage
+			if (typeof window !== "undefined") {
+				saveConfigToLocalStorage(config);
+			}
+			if (apiResult.localStorage_only) {
+				console.warn("Upstash rate limit reached:", apiResult.message);
+				resolve({
+					success: true,
+					localStorage_only: true,
+					message: apiResult.message,
+				});
+			} else {
+				resolve({ success: true });
+			}
+		} else {
+			console.error("Error saving config to API after retries:", result.lastError);
+			resolve({
+				success: false,
+				message: result.lastError instanceof Error ? result.lastError.message : "Unknown error",
+			});
+		}
+	} catch (error) {
+		console.error("Error processing save result:", error);
+		resolve({
+			success: false,
+			message: error instanceof Error ? error.message : "Unknown error",
+		});
+	} finally {
+		isSaving = false;
+		setTimeout(() => processSaveQueue(), 100);
+	}
 }
 
 export async function saveConfig(
-  config: ProfileConfig,
-  adminToken: string
+	config: ProfileConfig,
+	adminToken: string,
 ): Promise<{
-  success: boolean;
-  localStorage_only?: boolean;
-  message?: string;
+	success: boolean;
+	localStorage_only?: boolean;
+	message?: string;
 }> {
-  return new Promise((resolve) => {
-    saveQueue = saveQueue.filter((item) => item.adminToken !== adminToken);
-    saveQueue.push({ config, adminToken, resolve, reject: () => {} });
-    processSaveQueue();
-  });
+	return new Promise((resolve) => {
+		saveQueue = saveQueue.filter((item) => item.adminToken !== adminToken);
+		saveQueue.push({ config, adminToken, resolve, reject: () => {} });
+		processSaveQueue();
+	});
 }
 
 export async function checkApiAvailable(): Promise<boolean> {
-  try {
-    const response = await fetch(API_BASE, { cache: "no-store" });
-    return response.ok;
-  } catch {
-    return false;
-  }
+	const result = await retryWithBackoff(() => fetch(API_BASE, { cache: "default" }), {
+		maxRetries: 2,
+		initialDelayMs: 50,
+		maxDelayMs: 1000,
+	});
+
+	if (!result.success) {
+		return false;
+	}
+
+	return result.data!.ok;
 }

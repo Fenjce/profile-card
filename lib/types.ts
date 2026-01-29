@@ -37,6 +37,17 @@ export interface Story {
   mediaSize?: string; // File size for display (e.g., "2.5 MB")
 }
 
+export interface SeasonalTheme {
+  id: string;
+  name: string;
+  enabled: boolean;
+  startDate: string; // MM-DD format
+  endDate: string; // MM-DD format
+  messages: string[]; // Array of messages
+  backgroundColor?: string;
+  textColor?: string;
+  icon?: string; // Emoji icon for the theme
+}
 export interface ProfileConfig {
   user: User;
   information: InformationItem[]; // Thông tin cá nhân
@@ -46,6 +57,7 @@ export interface ProfileConfig {
     password: string;
   };
   stories: Story[];
+  seasonalThemes: SeasonalTheme[];
 }
 
 export interface LogEntry {
@@ -56,5 +68,8 @@ export interface LogEntry {
   type: "visit" | "login";
   username?: string;
   city?: string;
+  region?: string;
   country?: string;
+  timezone?: string;
+  isp?: string;
 }

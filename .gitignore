@@ -5,6 +5,12 @@ node_modules/
 
 # Testing
 /coverage
+*.test.ts
+*.test.tsx
+*.test.js
+*.spec.ts
+*.spec.tsx
+*.spec.js
 
 # Next.js
 /.next/
@@ -33,3 +39,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db

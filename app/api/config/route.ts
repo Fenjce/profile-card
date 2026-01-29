@@ -13,14 +13,35 @@ const REDIS_TIMEOUT = 5000; // 5 seconds
 function getRedisClient(): Redis | null {
 	try {
 		console.log("[Config] Checking Redis connection...");
-		console.log("[Config] UPSTASH_REDIS_REST_URL:", process.env.UPSTASH_REDIS_REST_URL ? "SET" : "NOT SET");
-		console.log("[Config] UPSTASH_REDIS_REST_TOKEN:", process.env.UPSTASH_REDIS_REST_TOKEN ? "SET" : "NOT SET");
 		console.log("[Config] KV_REST_API_URL:", process.env.KV_REST_API_URL ? "SET" : "NOT SET");
 		console.log("[Config] KV_REST_API_TOKEN:", process.env.KV_REST_API_TOKEN ? "SET" : "NOT SET");
+		console.log("[Config] UPSTASH_REDIS_REST_URL:", process.env.UPSTASH_REDIS_REST_URL ? "SET" : "NOT SET");
+		console.log("[Config] UPSTASH_REDIS_REST_TOKEN:", process.env.UPSTASH_REDIS_REST_TOKEN ? "SET" : "NOT SET");
 
-		// Ưu tiên: Thử dùng Redis.fromEnv() - tự động đọc từ UPSTASH_REDIS_REST_URL và UPSTASH_REDIS_REST_TOKEN
+		// Ưu tiên: Thử KV_REST_API_* trước (Vercel KV)
+		const kvUrl = process.env.KV_REST_API_URL;
+		const kvToken = process.env.KV_REST_API_TOKEN;
+
+		if (kvUrl && kvToken) {
+			console.log("[Config] Using KV_REST_API env vars");
+			let finalUrl = kvUrl;
+			if (kvUrl.startsWith("redis://") || kvUrl.startsWith("rediss://")) {
+				try {
+					const parsed = new URL(kvUrl);
+					if (parsed.hostname.includes("upstash.io")) {
+						finalUrl = `https://${parsed.hostname}`;
+					}
+				} catch {
+					// Ignore parse errors
+				}
+			}
+
+			return new Redis({ url: finalUrl, token: kvToken });
+		}
+
+		// Fallback: Thử UPSTASH_REDIS_REST_* (Upstash direct)
 		if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-			console.log("[Config] Using UPSTASH env vars");
+			console.log("[Config] Using UPSTASH_REDIS_REST env vars");
 			try {
 				return Redis.fromEnv();
 			} catch {
@@ -32,8 +53,8 @@ function getRedisClient(): Redis | null {
 		}
 
 		// Fallback: Thử các env var khác
-		const url = process.env.KV_REST_API_URL || process.env.KV_REDIS_URL || process.env.KV_URL;
-		const token = process.env.KV_REST_API_TOKEN || process.env.KV_REDIS_TOKEN || process.env.KV_TOKEN;
+		const url = process.env.KV_REDIS_URL || process.env.KV_URL;
+		const token = process.env.KV_REDIS_TOKEN || process.env.KV_TOKEN;
 
 		if (url && token) {
 			console.log("[Config] Using KV env vars");

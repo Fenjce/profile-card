@@ -19,6 +19,10 @@ const nextConfig = {
 				protocol: "https",
 				hostname: "i.pinimg.com",
 			},
+			{
+				protocol: "https",
+				hostname: "*.public.blob.vercel-storage.com",
+			},
 		],
 	},
 	// Tối ưu cho Vercel

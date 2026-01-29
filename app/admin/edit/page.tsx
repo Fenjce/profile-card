@@ -158,16 +158,6 @@ export default function EditPage() {
 			try {
 				const apiConfig = await fetchConfig();
 				if (apiConfig && apiConfig.user) {
-					// Kiểm tra xem có phải là default config không
-					const isDefaultConfig = apiConfig.user.name === defaultConfig.user.name && apiConfig.user.title === defaultConfig.user.title;
-
-					// Nếu là default config, không set vào state (tránh auto-save)
-					if (isDefaultConfig) {
-						console.warn("API returned default config, not loading to avoid overwriting");
-						setIsConfigLoaded(false);
-						return;
-					}
-
 					const cleanedStories = cleanupExpiredStories(apiConfig.stories || []);
 					if (cleanedStories.length !== apiConfig.stories?.length) {
 						apiConfig.stories = cleanedStories;

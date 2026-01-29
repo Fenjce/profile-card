@@ -12,8 +12,15 @@ const REDIS_TIMEOUT = 5000; // 5 seconds
 // Helper: Tạo Redis client từ env vars
 function getRedisClient(): Redis | null {
 	try {
+		console.log("[Config] Checking Redis connection...");
+		console.log("[Config] UPSTASH_REDIS_REST_URL:", process.env.UPSTASH_REDIS_REST_URL ? "SET" : "NOT SET");
+		console.log("[Config] UPSTASH_REDIS_REST_TOKEN:", process.env.UPSTASH_REDIS_REST_TOKEN ? "SET" : "NOT SET");
+		console.log("[Config] KV_REST_API_URL:", process.env.KV_REST_API_URL ? "SET" : "NOT SET");
+		console.log("[Config] KV_REST_API_TOKEN:", process.env.KV_REST_API_TOKEN ? "SET" : "NOT SET");
+
 		// Ưu tiên: Thử dùng Redis.fromEnv() - tự động đọc từ UPSTASH_REDIS_REST_URL và UPSTASH_REDIS_REST_TOKEN
 		if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+			console.log("[Config] Using UPSTASH env vars");
 			try {
 				return Redis.fromEnv();
 			} catch {
@@ -29,6 +36,7 @@ function getRedisClient(): Redis | null {
 		const token = process.env.KV_REST_API_TOKEN || process.env.KV_REDIS_TOKEN || process.env.KV_TOKEN;
 
 		if (url && token) {
+			console.log("[Config] Using KV env vars");
 			let finalUrl = url;
 			if (url.startsWith("redis://") || url.startsWith("rediss://")) {
 				try {
@@ -44,8 +52,10 @@ function getRedisClient(): Redis | null {
 			return new Redis({ url: finalUrl, token });
 		}
 
+		console.log("[Config] No Redis credentials found");
 		return null;
 	} catch {
+		console.log("[Config] Error creating Redis client");
 		return null;
 	}
 }
@@ -124,8 +134,10 @@ function isRateLimitError(error: any): boolean {
  * - Sets cache headers for all response paths
  */
 export async function GET() {
+	console.log("[Config GET] Request received");
 	try {
 		const redis = getRedisClient();
+		console.log("[Config GET] Redis client:", redis ? "CONNECTED" : "NOT CONNECTED");
 
 		if (!redis) {
 			console.warn("[Config GET] Redis not configured, returning default config");

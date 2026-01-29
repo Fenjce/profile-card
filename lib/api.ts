@@ -3,16 +3,36 @@ import { profileConfig as defaultConfig } from "./config";
 import { retryWithBackoff } from "./retry";
 
 const API_BASE = "/api/config";
+const API_STATUS = "/api/config/status";
 
-// Helper: Kiểm tra xem có Vercel/Upstash không
-function isVercelEnvironment(): boolean {
-	return !!(
-		process.env.UPSTASH_REDIS_REST_URL ||
-		process.env.UPSTASH_REDIS_REST_TOKEN ||
-		process.env.KV_REST_API_URL ||
-		process.env.KV_URL ||
-		process.env.VERCEL
-	);
+// Cache for environment status check
+let cachedIsVercelEnvironment: boolean | null = null;
+let lastStatusCheckTime = 0;
+const STATUS_CACHE_TTL = 60000; // 1 minute
+
+// Helper: Kiểm tra xem có Vercel/Upstash không (client-side)
+async function isVercelEnvironment(): Promise<boolean> {
+	// Return cached value if still valid
+	if (cachedIsVercelEnvironment !== null && Date.now() - lastStatusCheckTime < STATUS_CACHE_TTL) {
+		return cachedIsVercelEnvironment;
+	}
+
+	try {
+		const response = await fetch(API_STATUS, { cache: "default" });
+		if (response.ok) {
+			const data = await response.json();
+			cachedIsVercelEnvironment = data.isConfigured === true;
+			lastStatusCheckTime = Date.now();
+			return cachedIsVercelEnvironment;
+		}
+	} catch (error) {
+		console.warn("Error checking Vercel environment status:", error);
+	}
+
+	// Fallback: assume not configured
+	cachedIsVercelEnvironment = false;
+	lastStatusCheckTime = Date.now();
+	return false;
 }
 
 // Helper: Lấy config từ localStorage
@@ -43,8 +63,11 @@ function saveConfigToLocalStorage(config: ProfileConfig): void {
 }
 
 export async function fetchConfig(): Promise<ProfileConfig> {
-	// Nếu là localhost (không có Vercel), dùng localStorage
-	if (typeof window !== "undefined" && !isVercelEnvironment()) {
+	// Check if Vercel environment is configured
+	const hasVercel = await isVercelEnvironment();
+
+	// Nếu không có Vercel, dùng localStorage
+	if (!hasVercel) {
 		const localConfig = getConfigFromLocalStorage();
 		if (localConfig) {
 			console.log("Using config from localStorage");
@@ -141,8 +164,11 @@ async function processSaveQueue() {
 	isSaving = true;
 	const { config, adminToken, resolve } = saveQueue.shift()!;
 
-	// Nếu là localhost, chỉ lưu vào localStorage
-	if (typeof window !== "undefined" && !isVercelEnvironment()) {
+	// Check if Vercel environment is configured
+	const hasVercel = await isVercelEnvironment();
+
+	// Nếu không có Vercel, chỉ lưu vào localStorage
+	if (!hasVercel) {
 		try {
 			saveConfigToLocalStorage(config);
 			console.log("Config saved to localStorage");
